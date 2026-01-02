@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Beautyque</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+/* ===== BACKGROUND IMAGE ===== */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: url("Gemini_Generated_Image_bzcwrjbzcwrjbzcw.png") no-repeat center center fixed;
+    background-size: cover;
+    color: #222;
+}
+
+/* ===== HEADER ===== */
+header {
+    background: rgba(255,255,255,0.1);
+    text-align: center;
+    padding: 20px;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 24px;
+}
+
+header p {
+    margin: 5px 0 0;
+    font-size: 14px;
+}
+
+/* ===== CONTAINER ===== */
+.container {
+    max-width: 900px;
+    margin: auto;
+    padding: 15px;
+}
+
+/* ===== FORM ===== */
+form {
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(6px);
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+form input, form textarea, form button {
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+    font-size: 14px;
+}
+
+form button {
+    background: #640000; /* Dark red */
+    color: white;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+form button:hover {
+    background: #4d0000;
+}
+
+/* ===== PRODUCT GRID ===== */
+#products {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 15px;
+}
+
+/* ===== PRODUCT CARD ===== */
+.product {
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(6px);
+    border-radius: 12px;
+    box-shadow:0 4px 10px rgba(0,0,0,0.1);
+    overflow: hidden;
+    padding: 10px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.product img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    margin-bottom: 10px;
+    border-radius: 8px;
+}
+
+.product-content h3 {
+    margin:0 0 5px 0;
+    font-size: 15px;
+    word-break: break-word;
+}
+
+.product-content p {
+    font-size: 12px;
+    color: #555;
+    margin:0 0 10px 0;
+}
+
+.product-content a {
+    display: block;
+    text-align: center;
+    background: #640000; /* Dark red */
+    color: white;
+    text-decoration: none;
+    padding: 8px;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: 0.3s;
+}
+
+.product-content a:hover {
+    background: #4d0000;
+}
+
+.product-buttons {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: flex;
+    gap: 5px;
+}
+
+.product-buttons button {
+    background: #550202; /* Dark red */
+    color: white;
+    border: none;
+    padding: 4px 6px;
+    font-size: 11px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.product-buttons button:hover {
+    background: #4d0000;
+}
+
+.product-buttons .delete {
+    background: red;
+}
+
+.product-buttons .delete:hover {
+    background: darkred;
+}
+
+/* ===== RESPONSIVE FOR MOBILE ===== */
+@media (max-width: 500px) {
+    header h1 {
+        font-size: 20px;
+    }
+    header p {
+        font-size: 12px;
+    }
+    form input, form textarea, form button {
+        font-size: 13px;
+        padding: 8px;
+    }
+    #products {
+        grid-template-columns: 1fr; /* Single column for small phones */
+    }
+    .product img {
+        height: 140px;
+    }
+    .product-content h3 {
+        font-size: 14px;
+    }
+    .product-content p {
+        font-size: 11px;
+    }
+    .product-content a {
+        font-size: 13px;
+        padding: 7px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>✨ Beautyque ✨</h1>
+    <p>Manage your Fashion & Beauty Products</p>
+</header>
+
+<div class="container">
+
+<form id="productForm">
+    <h3>Add Product</h3>
+    <input type="file" id="image" accept="image/png, image/jpeg">
+    <input type="text" id="name" placeholder="Product Name" required>
+    <textarea id="desc" placeholder="Product Description" required></textarea>
+    <input type="text" id="link" placeholder="Purchase Link" required>
+    <button type="submit">Save</button>
+</form>
+
+<div id="products"></div>
+
+</div>
+
+<script>
+let products = JSON.parse(localStorage.getItem("products")) || [];
+let editIndex = null;
+
+function showProducts() {
+    const container = document.getElementById("products");
+    container.innerHTML = "";
+
+    products.forEach((p, index) => {
+        container.innerHTML += `
+        <div class="product">
+            <img src="${p.image}" ${p.image ? '' : 'style="display:none;"'}>
+            <div class="product-content">
+                <h3>${p.name}</h3>
+                <p>${p.desc}</p>
+                <a href="${p.link}" target="_blank">Purchase</a>
+            </div>
+            <div class="product-buttons">
+                <button class="edit">Edit</button>
+                <button class="delete">Delete</button>
+            </div>
+        </div>
+        `;
+    });
+
+    document.querySelectorAll(".edit").forEach((btn, i) => {
+        btn.onclick = () => {
+            editIndex = i;
+            document.getElementById("name").value = products[i].name;
+            document.getElementById("desc").value = products[i].desc;
+            document.getElementById("link").value = products[i].link;
+            document.getElementById("image").value = "";
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+    });
+
+    document.querySelectorAll(".delete").forEach((btn, i) => {
+        btn.onclick = () => {
+            if (confirm("Are you sure you want to delete this product?")) {
+                products.splice(i, 1);
+                localStorage.setItem("products", JSON.stringify(products));
+                showProducts();
+            }
+        };
+    });
+}
+
+document.getElementById("productForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+    const fileInput = document.getElementById("image");
+    const name = document.getElementById("name").value.trim();
+    const desc = document.getElementById("desc").value.trim();
+    const link = document.getElementById("link").value.trim();
+    const form = this;
+
+    function saveProduct(imgData) {
+        const product = { 
+            name, 
+            desc, 
+            link, 
+            image: imgData || (editIndex !== null ? products[editIndex].image : '') 
+        };
+
+        if (editIndex !== null) {
+            products[editIndex] = product;
+            editIndex = null;
+        } else {
+            products.push(product);
+        }
+
+        localStorage.setItem("products", JSON.stringify(products));
+        form.reset();
+        showProducts();
+    }
+
+    if(fileInput.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            saveProduct(e.target.result);
+        };
+        reader.readAsDataURL(fileInput.files[0]);
+    } else {
+        saveProduct();
+    }
+});
+
+showProducts();
+</script>
+
+</body>
+</html>
